@@ -100,17 +100,31 @@ login with ssh and check status of our connection:
 $ sudo ssh kseniia@192.168.10.42 -p 50000
 $ sudo systemctl status ssh
 ```
-Finaly, let's test the ssh conection from host. We need to setup SSH public key authentication [[Setup SSH Public Key Authentication](https://www.cyberciti.biz/faq/ubuntu-18-04-setup-ssh-public-key-authentication/)]; OS of my host os macOS Sierra; run from ***your host's terminal***:
+Finaly, let's test the ssh conection from host. We need to setup SSH public key authentication [[[Setup SSH Public Key Authentication](https://www.cyberciti.biz/faq/ubuntu-18-04-setup-ssh-public-key-authentication/)]]; OS of my host is macOS Sierra; run from ***your host's terminal***:
 
 ```
+# host terminal
+
 $ ssh-keygen -t rsa
 ```
-for the ip on VM allowed 2 ip adresses: 192.168.10.41(host) and 192.168.10.42(VM); we need to set the ip addr to the host: systen settings ->network->advanced->TCP/IP->select manual->enter the new ip addr (192.168.10.41)->apply
+to connect 2 interfaces they must be in one subnet; for the ip on VM allowed 2 ip adresses (because we use netmask /30): 192.168.10.42(for VM, ip addr that we set) and 192.168.10.41(for host); we need to set up the ip addr to the host: ***System Preferences*** -> ***Network*** -> ***Advanced*** -> ***TCP/IP*** -> ***Select Manual*** -> ***Enter the new ip addr (192.168.10.41)*** -> ***Apply***; you can also try to change ip via `ifconfig`. Now we can connect to our server(VM):
 ```
+# host terminal
+
 $ ping 192.168.10.42
 $ ssh kseniia@192.168.10.42 -p 50000
 $ exit (logout from the ssh)
 ```
+last step is [[HOW DO I DISABLE SSH LOGIN FOR THE ROOT USER?](https://mediatemple.net/community/products/dv/204643810/how-do-i-disable-ssh-login-for-the-root-user)]. To disable root SSH login, edit `/etc/ssh/sshd_config`, by changing line `# PermitRootLogin yes` to `PermitRootLogin no`. Restart the SSH daemon: `sudo service sshd restart`. And read [Why should I really disable root ssh login?](https://superuser.com/questions/1006267/why-should-i-really-disable-root-ssh-login)
+
+### You have to set the rules of your firewall on your server only with the services used outside the VM.
+
+### You have to set a DOS (Denial Of Service Attack) protection on your open ports of your VM.
+
+### You have to set a protection against scans on your VM’s open ports.
+
+### Stop the services you don’t need for this project.
+
 ## V.2 Web Part
 
 ## V.3 Deployment Part
