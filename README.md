@@ -158,20 +158,18 @@ $ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 $ sudo vim /etc/fail2ban/fail2ban.local
 ```
 
-1. SSH protocol security (protect open port 50000)
-Edit `/etc/fail2ban/jail.local`: 
+1. SSH protocol security (protect open port 50000). Edit `/etc/fail2ban/jail.local`: 
 
 ![fail2ban_ssh](img/fail2ban_ssh.png)
 
 - [Fail2Ban Port 80 to protect sites from DOS Attacks](http://www.tothenew.com/blog/fail2ban-port-80-to-protect-sites-from-dos-attacks/)
 - [Настройка Fail2ban](https://vps.ua/wiki/configuring-fail2ban/)
 
-2. HTTP protocol security (protect our port 80)
-Edit `/etc/fail2ban/jail.local`:
+2. HTTP protocol security (protect our port 80). Edit `/etc/fail2ban/jail.local`:
 
 ![fail2ban_http](img/fail2ban_http.png)
 
-Now we need to create the filter, to do that, create the file `/etc/fail2ban/filter.d/http-get-dos.conf` and copy the text below in it:
+Now we need to create the filter, to do that, create the file `/etc/fail2ban/filter.d/http-get-dos.conf` and add this text:
 
 ![http-get-dos.png](img/http-get-dos.png)
 
@@ -188,8 +186,58 @@ let's see the result:
 
 ### You have to set a protection against scans on your VM’s open ports.
 
-### Stop the services you don’t need for this project.
+```
+$ sudo apt-get install portsentry
+```
+modify the file `/etc/default/portsentry`:
 
+```
+TCP_MODE="atcp"
+UDP_MODE="audp"
+```
+We also wish that `portsentry` is a blockage. We therefore need to activate it by passing BLOCK_UDP and BLOCK_TCP to 1; modify `/etc/portsentry/portsentry.conf`:
+```
+##################
+# Ignore Options #
+##################
+# 0 = Do not block UDP/TCP scans.
+# 1 = Block UDP/TCP scans.
+# 2 = Run external command only (KILL_RUN_CMD)
+
+BLOCK_UDP="1"
+BLOCK_TCP="1"
+```
+We opt for a blocking of malicious persons through iptables. We will therefore comment on all lines of the configuration file that begin with KILL_ROUTE except this one:
+```
+KILL_ROUTE="/sbin/iptables -I INPUT -s $TARGET$ -j DROP"
+```
+verify your actions:
+```
+$ cat portsentry.conf | grep KILL_ROUTE | grep -v "#"
+```
+relaunch service `portsentry` and it will now begin to block the port scans:
+```
+$ sudo /etc/init.d/portsentry start
+```
+`portsentry` logs are in the `/var/log/syslog` file.
+
+- [To protect against the scan of ports with portsentry](https://en-wiki.ikoula.com/en/To_protect_against_the_scan_of_ports_with_portsentry)
+- [How to protect against port scanners?](https://unix.stackexchange.com/questions/345114/how-to-protect-against-port-scanners)
+
+### Stop the services you don’t need for this project.
+All the services are controlled with special shell scripts in `/etc/init.d`, so:
+```
+$ ls /etc/init.d
+```
+![list_of_services](img/list_of_sefvices.png)
+
+- [List of available services](https://unix.stackexchange.com/questions/108591/list-of-available-services)
+
+```
+$ sudo systemctl disable bluetooth.service
+$ sudo systemctl disable console-setup.service
+$ sudo systemctl disable keyboard-setup.service
+```
 ## V.2 Web Part
 
 ## V.3 Deployment Part
