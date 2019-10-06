@@ -148,7 +148,7 @@ here are some usefull links:
 - [How To Set Up a Firewall with UFW on Debian 9](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-debian-9)
 
 ### You have to set a DOS (Denial Of Service Attack) protection on your open ports of your VM.
-There are a lot of methods to et a DOS protection: [A guide to secure your server from DDoS!](https://bobcares.com/blog/centos-ddos-protection/). Let's use one of listed via the link - `Fail2Ban`:
+There are a lot of methods to set a DOS protection: [A guide to secure your server from DDoS!](https://bobcares.com/blog/centos-ddos-protection/) Let's use one of listed via the link - `Fail2Ban`:
 ```
 $ sudo apt-get install iptables fail2ban apache2
 ```
@@ -169,7 +169,7 @@ Edit `/etc/fail2ban/jail.local`:
 2. HTTP protocol security (protect our port 80)
 Edit `/etc/fail2ban/jail.local`:
 
-![fail2ban_ssh](img/fail2ban_ssh.png)
+![fail2ban_http](img/fail2ban_http.png)
 
 Now we need to create the filter, to do that, create the file /etc/fail2ban/filter.d/http-get-dos.conf and copy the text below in it:
 
