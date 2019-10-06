@@ -229,7 +229,7 @@ All the services are controlled with special shell scripts in `/etc/init.d`, so:
 ```
 $ ls /etc/init.d
 ```
-![list_of_services](img/list_of_sefvices.png)
+![list_of_services](img/list_of_services.png)
 
 - [List of available services](https://unix.stackexchange.com/questions/108591/list-of-available-services)
 
