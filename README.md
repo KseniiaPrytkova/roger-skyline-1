@@ -119,7 +119,7 @@ last step is [HOW DO I DISABLE SSH LOGIN FOR THE ROOT USER?](https://mediatemple
 
 ### You have to set the rules of your firewall on your server only with the services used outside the VM.
 I'll set up a Firewall with the help of ***UFW (Uncomplicated Firewall)***, whisch is an interface to ***iptables*** that is geared towards simplifying the process of configuring a firewall. 
-> (by the way - couple of times i had the problem with `upd-get install` - for some reason my VM could nor reach the server with package, also `ping` did not work; ***RESOLUTION*** for `apt-get update fails to fetch files, “Temporary failure resolving …” error`: open `/etc/resolv.conf` file on your host, copy the `namserver` value (`nameserver fdb8:8db8:81bd::1`) and modify `/etc/resolv.conf` on VM with thos value)
+> by the way - couple of times i had the problem with `upd-get install` - for some reason my VM could nor reach the server with package, also `ping` did not work; ***SOLUTION*** for problem `apt-get update fails to fetch files, “Temporary failure resolving …” error`: open `/etc/resolv.conf` file on your host, copy the `namserver` value (`nameserver fdb8:8db8:81bd::1`) and modify `/etc/resolv.conf` on VM with this value
 ```
 $ sudo apt-get install ufw
 $ sudo ufw status
