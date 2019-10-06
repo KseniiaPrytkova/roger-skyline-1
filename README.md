@@ -171,7 +171,7 @@ Edit `/etc/fail2ban/jail.local`:
 
 ![fail2ban_http](img/fail2ban_http.png)
 
-Now we need to create the filter, to do that, create the file /etc/fail2ban/filter.d/http-get-dos.conf and copy the text below in it:
+Now we need to create the filter, to do that, create the file `/etc/fail2ban/filter.d/http-get-dos.conf` and copy the text below in it:
 
 ![http-get-dos.png](img/http-get-dos.png)
 
