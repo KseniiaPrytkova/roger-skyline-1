@@ -57,15 +57,14 @@ First, go to VirtualBox settings -> Network -> in `Attached to` subsection chang
 $ sudo apt-get install net-tools
 $ sudo ifconfig
 ```
+As we see, the name of our `bridged adapter` is ***enp0s3***. Let's setup ***static ip*** (not dynamical) [[How to setup a Static IP address on Debian Linux)](https://linuxconfig.org/how-to-setup-a-static-ip-address-on-debian-linux)].
 
-![ifconfig](img/ifconfig.png)
-
-As we see, the name of our `bridget adapter` is ***enp0s3***. Let's setup ***static ip*** (not dynamical) [* [How to setup a Static IP address on Debian Linux)](https://linuxconfig.org/how-to-setup-a-static-ip-address-on-debian-linux)].
 ***1.*** We should modify `/etc/network/interfaces` network config file (don't forget to`$ sudo chmod +w interfaces`):
 
 ![interfaces](img/interfaces.png)
 
-[* [Файл настройки сети /etc/network/interfaces)](https://notessysadmin.com/fajl-nastrojki-seti)]
+[[Файл настройки сети /etc/network/interfaces)](https://notessysadmin.com/fajl-nastrojki-seti)]
+
 ***2.*** Define your network interfaces separately within `/etc/network/interfaces.d/` directory. During the networking daemon initiation the `/etc/network/interfaces.d/` directory is searched for network interface configurations. Any found network configuration is included as part of the `/etc/network/interfaces`. So:
 ```
 $ cd interfaces.d
@@ -84,8 +83,34 @@ run `ifconfig` to see the result:
 ![ifconfig_res](img/ifconfig_res.png)
 
 ### You have to change the default port of the SSH service by the one of your choice. SSH access HAS TO be done with publickeys. SSH root access SHOULD NOT be allowed directly, but with a user who can be root.
+let's check status of ssh server:
+```
+$ ps -ef | grep sshd
+```
+next we need to change `/etc/ssh/sshd_config` file [[Changing the SSH Port for Your Linux Server](https://se.godaddy.com/help/changing-the-ssh-port-for-your-linux-server-7306)]:
+```
+$ sudo vim /etc/ssh/sshd_config
+```
+and change the line `# Port 22` - remove `#` and type choosen port number; you can use range of numbers from 49152 to 65535 (accordingly to IANA); i chosed port number ***50000***; restart the sshd service:
+```
+$ sudo service sshd restart
+```
+login with ssh and check status of our connection:
+```
+$ sudo ssh kseniia@192.168.10.42 -p 50000
+$ sudo systemctl status ssh
+```
+Finaly, let's test the ssh conection from host. We need to setup SSH public key authentication [[Setup SSH Public Key Authentication](https://www.cyberciti.biz/faq/ubuntu-18-04-setup-ssh-public-key-authentication/)]; OS of my host os macOS Sierra; run from ***your host's terminal***:
 
-
+```
+$ ssh-keygen -t rsa
+```
+for the ip on VM allowed 2 ip adresses: 192.168.10.41(host) and 192.168.10.42(VM); we need to set the ip addr to the host: systen settings ->network->advanced->TCP/IP->select manual->enter the new ip addr (192.168.10.41)->apply
+```
+$ ping 192.168.10.42
+$ ssh kseniia@192.168.10.42 -p 50000
+$ exit (logout from the ssh)
+```
 ## V.2 Web Part
 
 ## V.3 Deployment Part
