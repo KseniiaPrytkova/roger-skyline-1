@@ -231,18 +231,34 @@ $ ls /etc/init.d
 ```
 ![list_of_services](img/list_of_services.png)
 
-- [List of available services](https://unix.stackexchange.com/questions/108591/list-of-available-services)
-
 ```
 $ sudo systemctl disable bluetooth.service
 $ sudo systemctl disable console-setup.service
 $ sudo systemctl disable keyboard-setup.service
 ```
+- [List of available services](https://unix.stackexchange.com/questions/108591/list-of-available-services)
+
+### Create a script that updates all the sources of package, then your packages and which logs the whole in a file named /var/log/update_script.log. Create a scheduled task for this script once a week at 4AM and every time the machine reboots.
+
+```
+$ touch i_will_update.sh
+$ chmod a+x i_will_update.sh
+```
+![update](img/update.png)
+
+```
+$ sudo crontab -e
+```
+
+![cron_update](img/cron_update.png)
+
+[crontab guru](https://crontab.guru/#0_4_*_*_MON)
+### Make a script to monitor changes of the /etc/crontab file and sends an email to root if it has been modified. Create a scheduled script task every day at midnight.
+
+
 ## V.2 Web Part
 
 ## V.3 Deployment Part
-
-
 
 
 
