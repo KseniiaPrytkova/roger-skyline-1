@@ -252,7 +252,7 @@ $ sudo crontab -e
 
 ![cron_update](img/cron_update.png)
 
-[crontab guru](https://crontab.guru/#0_4_*_*_MON)
+ - [crontab guru](https://crontab.guru/#0_4_*_*_MON)
 ### Make a script to monitor changes of the /etc/crontab file and sends an email to root if it has been modified. Create a scheduled script task every day at midnight.
 
 
