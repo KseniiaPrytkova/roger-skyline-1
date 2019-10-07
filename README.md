@@ -326,6 +326,7 @@ $ echo "Text" | sudo mail -s "Subject" root@debian.lan
 Then login as root and start `mutt`. The mail should now be visible.
 
 The crontab script should now work.
+- [Setting Up Local Mail Delivery on Ubuntu with Postfix and Mutt](https://www.cmsimike.com/blog/2011/10/30/setting-up-local-mail-delivery-on-ubuntu-with-postfix-and-mutt/)
 
 > to copy file from host to VM via SSH: `scp -P 50000 i_will_monitor_cron.sh kseniia@192.168.10.42:~` (~ means home dir)
 ## V.2 Web Part
