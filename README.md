@@ -356,6 +356,77 @@ my login page:
 
 ![login_page](img/login_page.png)
 
+
+> scp -P 50000 kseniia@192.168.10.42:/var/www/html/index.html .
+
+Generate SSL self-signed key and certificate:
+```
+$ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+Country name: UA
+State or Province Name: ENTER
+Locality Name: ENTER
+Organization Name: ENTER
+Organizational Unit Name: ENTER
+Common Name: 192.168.10.42 (VM IP address)
+Email Address: root@debian.lan
+```
+
+Create the file /etc/apache2/conf-available/ssl-params.conf and edit it:
+```
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+SSLProtocol All -SSLv2 -SSLv3
+SSLHonorCipherOrder On
+
+Header always set X-Frame-Options DENY
+Header always set X-Content-Type-Options nosniff
+
+SSLCompression off
+SSLSessionTickets Off
+SSLUseStapling on
+SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+```
+
+Edit the file /etc/apache2/sites-available/default-ssl.conf so it looks like this:
+
+```
+<IfModule mod_ssl.c>
+	<VirtualHost _default_:443>
+		ServerAdmin root@localhost
+		ServerName 192.168.10.42
+		DocumentRoot /var/www/html
+		ErrorLog ${APACHE_LOG_DIR}/error.log
+		CustomLog ${APACHE_LOG_DIR}/access.log combined
+		SSLEngine on
+		SSLCertificateFile	/etc/ssl/certs/apache-selfsigned.crt
+		SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
+		<FilesMatch "\.(cgi|shtml|phtml|php)$">
+				SSLOptions +StdEnvVars
+		</FilesMatch>
+		<Directory /usr/lib/cgi-bin>
+				SSLOptions +StdEnvVars
+		</Directory>
+	</VirtualHost>
+</IfModule>
+```
+
+Add a redirect rule to /etc/apache2/sites-available/000-default.conf, to redirect HTTP to HTTPS:
+```
+Redirect "/" "https://192.168.10.42/"
+```
+
+Enable everything changed and restart the Apache service:
+```
+$ sudo a2enmod ssl
+$ sudo a2enmod headers
+$ sudo a2ensite default-ssl
+$ sudo a2enconf ssl-params
+$ sudo apache2ctl configtest (to check that the syntax is OK)
+$ sudo systemctl restart apache2
+```
+
+The SSL server is tested by entering "https://192.168.10.42" in a host browser. The expected result is a "Your connection is not private" warning page. Continue from this by selecting Advanced->Proceed to...
+HTTP->HTTPS redirection is tested by entering "http://192.168.10.42" in the host browser.
+
 ## V.3 Deployment Part <a id="DepPart"></a>
 
 
