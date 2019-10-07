@@ -2,9 +2,9 @@
 
 ## Summary <a id="summary"></a>
 
-- [Summary](#summary)
 - [V.1 VM Part](#VMPart)
 - [V.2 Network and Security Part](#NetworkSecurityPart)
+	- [Install and configure `sudo`](#sudo)
 - [V.2 Web Part](#WebPart)
 - [V.3 Deployment Part](#DepPart)
 
@@ -37,7 +37,7 @@ Finally, i did not install desktop envirinment; GRUB i accepted.
 ## V.2 Network and Security Part <a id="NetworkSecurityPart"></a>
 ### You must create a non-root user to connect to the machine and work.
 Non-root login was created while setting up the OS. Just log in.
-### Use sudo, with this user, to be able to perform operation requiring special rights.
+### Use sudo, with this user, to be able to perform operation requiring special rights. <a id="sudo"></a>
 First, we need to install `sudo`, what we can do only as root, so:
 ```
 $ su
