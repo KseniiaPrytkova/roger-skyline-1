@@ -14,7 +14,7 @@
 	- [Stop services that are not needed](#StopServices)
 	- [Update packages regularly](#UpdatePackages)
 	- [Monitor changes of the `/etc/crontab` periodically](#UpdateCron)
-		-[Set up local mail delivery with Postfix and Mutt](#SetUpMail)
+		- [Set up local mail delivery with Postfix and Mutt](#SetUpMail)
 - [V.2 Web Part](#WebPart)
 - [V.3 Deployment Part](#DepPart)
 
