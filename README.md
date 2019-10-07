@@ -5,6 +5,16 @@
 - [V.1 VM Part](#VMPart)
 - [V.2 Network and Security Part](#NetworkSecurityPart)
 	- [Install and configure `sudo`](#sudo)
+	- [Configure a static IP on Virtual Machine](#StaticIP)
+	- [Change the default port of the SSH service](#SSHDefault)
+	- [Setup SSH Public Key Authentication](#SSHKeySetup)
+	- [Set up Firewall with UFW (Uncomplicated Firewall)](#UFW)
+	- [Set a DOS (Denial Of Service Attack) protection on open ports of VM(server) with `fail2ban`](#DOS)
+	- [Set a protection against scans of open ports with `portsentry`](#StopScan)
+	- [Stop services that are not needed](#StopServices)
+	- [Update packages regularly](#UpdatePackages)
+	- [Monitor changes of the `/etc/crontab` periodically](#UpdateCron)
+		-[Set up local mail delivery with Postfix and Mutt](#SetUpMail)
 - [V.2 Web Part](#WebPart)
 - [V.3 Deployment Part](#DepPart)
 
@@ -59,7 +69,7 @@ add `username ALL=(ALL:ALL) ALL` to `# User priviliege specification` section:
 
 ![sudoers](img/sudoers.png)
 
-### We don’t want you to use the DHCP service of your machine. You’ve got to configure it to have a static IP and a Netmask in \30.
+### We don’t want you to use the DHCP service of your machine. You’ve got to configure it to have a static IP and a Netmask in \30. <a id="StaticIP"></a>
 First, go to VirtualBox settings -> Network -> in `Attached to` subsection change ***NAT*** on ***Bridged Adapter***; i like using `ifconfig`, that's why i'll install it (it's always possible to use `ip`):
 ```
 $ sudo apt-get install net-tools
@@ -90,7 +100,7 @@ run `ifconfig` to see the result:
 
 ![ifconfig_res](img/ifconfig_res.png)
 
-### You have to change the default port of the SSH service by the one of your choice. SSH access HAS TO be done with publickeys. SSH root access SHOULD NOT be allowed directly, but with a user who can be root.
+### You have to change the default port of the SSH service by the one of your choice. SSH access HAS TO be done with publickeys. SSH root access SHOULD NOT be allowed directly, but with a user who can be root. <a id="SSHDefault"></a>
 let's check status of ssh server:
 ```
 $ ps -ef | grep sshd
@@ -108,7 +118,8 @@ login with ssh and check status of our connection:
 $ sudo ssh kseniia@192.168.10.42 -p 50000
 $ sudo systemctl status ssh
 ```
-Finaly, let's test the ssh conection from host. We need to setup SSH public key authentication [Setup SSH Public Key Authentication](https://www.cyberciti.biz/faq/ubuntu-18-04-setup-ssh-public-key-authentication/); OS of my host is macOS Sierra; run from ***your host's terminal***:
+#### Finaly <a id="SSHKeySetup"></a>
+let's test the ssh conection from host. We need to setup SSH public key authentication [Setup SSH Public Key Authentication](https://www.cyberciti.biz/faq/ubuntu-18-04-setup-ssh-public-key-authentication/); OS of my host is macOS Sierra; run from ***your host's terminal***:
 
 ```
 # host terminal
@@ -125,7 +136,7 @@ $ exit (logout from the ssh)
 ```
 last step is [HOW DO I DISABLE SSH LOGIN FOR THE ROOT USER?](https://mediatemple.net/community/products/dv/204643810/how-do-i-disable-ssh-login-for-the-root-user). To disable root SSH login, edit `/etc/ssh/sshd_config`, by changing line `# PermitRootLogin yes` to `PermitRootLogin no`. Restart the SSH daemon: `sudo service sshd restart`. And read [Why should I really disable root ssh login?](https://superuser.com/questions/1006267/why-should-i-really-disable-root-ssh-login)
 
-### You have to set the rules of your firewall on your server only with the services used outside the VM.
+### You have to set the rules of your firewall on your server only with the services used outside the VM. <a id="UFW"></a>
 I'll set up a Firewall with the help of ***UFW (Uncomplicated Firewall)***, whisch is an interface to ***iptables*** that is geared towards simplifying the process of configuring a firewall. 
 > by the way - couple of times i had the problem with `upd-get install` - for some reason my VM could nor reach the server with package, also `ping` did not work; ***SOLUTION*** for problem `apt-get update fails to fetch files, “Temporary failure resolving …” error`: open `/etc/resolv.conf` file on your host, copy the `namserver` value (`nameserver fdb8:8db8:81bd::1`) and modify `/etc/resolv.conf` on VM with this value
 ```
@@ -155,7 +166,7 @@ here are some usefull links:
 - [UFW](https://help.ubuntu.com/community/UFW)
 - [How To Set Up a Firewall with UFW on Debian 9](https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-debian-9)
 
-### You have to set a DOS (Denial Of Service Attack) protection on your open ports of your VM.
+### You have to set a DOS (Denial Of Service Attack) protection on your open ports of your VM. <a id="DOS"></a>
 There are a lot of methods to set a DOS protection: [A guide to secure your server from DDoS!](https://bobcares.com/blog/centos-ddos-protection/) Let's use one of listed via the link - `Fail2Ban`:
 ```
 $ sudo apt-get install iptables fail2ban apache2
@@ -192,7 +203,7 @@ let's see the result:
 
 ![fail2ban_check](img/fail2ban_check.png)
 
-### You have to set a protection against scans on your VM’s open ports.
+### You have to set a protection against scans on your VM’s open ports. <a id="StopScan"></a>
 
 ```
 $ sudo apt-get install portsentry
@@ -232,7 +243,7 @@ $ sudo /etc/init.d/portsentry start
 - [To protect against the scan of ports with portsentry](https://en-wiki.ikoula.com/en/To_protect_against_the_scan_of_ports_with_portsentry)
 - [How to protect against port scanners?](https://unix.stackexchange.com/questions/345114/how-to-protect-against-port-scanners)
 
-### Stop the services you don’t need for this project.
+### Stop the services you don’t need for this project. <a id="StopServices"></a>
 All the services are controlled with special shell scripts in `/etc/init.d`, so:
 ```
 $ ls /etc/init.d
@@ -246,7 +257,7 @@ $ sudo systemctl disable keyboard-setup.service
 ```
 - [List of available services](https://unix.stackexchange.com/questions/108591/list-of-available-services)
 
-### Create a script that updates all the sources of package, then your packages and which logs the whole in a file named /var/log/update_script.log. Create a scheduled task for this script once a week at 4AM and every time the machine reboots.
+### Create a script that updates all the sources of package, then your packages and which logs the whole in a file named /var/log/update_script.log. Create a scheduled task for this script once a week at 4AM and every time the machine reboots. <a id="UpdatePackages"></a>
 
 ```
 $ touch i_will_update.sh
@@ -262,17 +273,20 @@ $ sudo crontab -e
 
  - [crontab guru](https://crontab.guru/#0_4_*_*_MON)
 
-### Make a script to monitor changes of the /etc/crontab file and sends an email to root if it has been modified. Create a scheduled script task every day at midnight.
+### Make a script to monitor changes of the /etc/crontab file and sends an email to root if it has been modified. Create a scheduled script task every day at midnight.  <a id="UpdateCron"></a>
 
 ```
 $ touch i_will_monitor_cron.sh
 $ chmod a+x i_will_monitor_cron.sh
 ```
+![monitor_cron](img/monitor_cron.png)
+
 Add this line to `crontab`:
 ```
 * * * * * /home/kseniia/i_will_monitor_cron.sh &
 ```
-Install the `bsd-mailx package` (to be able to use the mail command):
+#### to be able to use the mail command <a id="SetUpMail"></a>
+install the `bsd-mailx package`:
 ```
 $ sudo apt install bsd-mailx
 ```
