@@ -429,6 +429,22 @@ HTTP->HTTPS redirection is tested by entering "http://192.168.10.42" in the host
 
 ## V.3 Deployment Part <a id="DepPart"></a>
 
+The deployment script deploy.sh can be run after the prerequisites are met, which are:
+```
+1) A VM has been created using Virtualbox with the settings stated above.
+2) The VM network is set to Bridged Adapter.
+3) sudo has been set up for the user.
+4) Git is installed on the VM ("$ apt-get install git" as root)
+```
+
+Clone the repository to the VM:
+```
+git clone https://github.com/KseniiaPrytkova/roger-skyline-1
+```
+Execute the deployment script:
+```
+$ ./deploy.sh
+```
 
 
 
