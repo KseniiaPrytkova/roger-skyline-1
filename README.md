@@ -57,7 +57,7 @@ First, go to VirtualBox settings -> Network -> in `Attached to` subsection chang
 $ sudo apt-get install net-tools
 $ sudo ifconfig
 ```
-As we see, the name of our `bridged adapter` is ***enp0s3***. Let's setup ***static ip*** (not dynamical) - [How to setup a Static IP address on Debian Linux)](https://linuxconfig.org/how-to-setup-a-static-ip-address-on-debian-linux), [Network of VirtualBox instances with static IP addresses and Internet access.](https://www.codesandnotes.be/2018/10/16/network-of-virtualbox-instances-with-static-ip-addresses-and-internet-access/).
+As we see, the name of our `bridged adapter` is ***enp0s3***. Let's setup ***static ip*** (not dynamical) - check [How to setup a Static IP address on Debian Linux](https://linuxconfig.org/how-to-setup-a-static-ip-address-on-debian-linux) and [Network of VirtualBox instances with static IP addresses and Internet access](https://www.codesandnotes.be/2018/10/16/network-of-virtualbox-instances-with-static-ip-addresses-and-internet-access/).
 
 ***1.*** We should modify `/etc/network/interfaces` network config file (don't forget to`$ sudo chmod +w interfaces`):
 
@@ -253,12 +253,100 @@ $ sudo crontab -e
 ![cron_update](img/cron_update.png)
 
  - [crontab guru](https://crontab.guru/#0_4_*_*_MON)
+
 ### Make a script to monitor changes of the /etc/crontab file and sends an email to root if it has been modified. Create a scheduled script task every day at midnight.
 
+```
+$ touch i_will_monitor_cron.sh
+$ chmod a+x i_will_monitor_cron.sh
+```
+Add this line to `crontab`:
+```
+* * * * * /home/kseniia/i_will_monitor_cron.sh &
+```
+Install the `bsd-mailx package` (to be able to use the mail command):
+```
+$ sudo apt install bsd-mailx
+```
+Install `postfix` (setup happens after installation):
+```
+$ sudo apt install postfix
+```
+In postfix setup, select "Local only" to create a local mail server.
++ System mail name: "debian.lan"
++ Root and postmaster mail recipient: "root@localhost"
++ Other destinations to accept mail for: "debian.lan, debian.lan, localhost.lan, , localhost"
++ Force synchronous updates on mail queue? - No
++ Local networks: ENTER
++ Mailbox size limit (bytes): 0 (no limit)
++ Local address extension character: ENTER
++ Internet protocols to use: all
 
+Edit `/etc/aliases`:
+```
+root: root
+```
+Then:
+```
+$ sudo newaliases
+```
+To update the aliases here.
+
+Then change the home mailbox directory:
+```
+$ sudo postconf -e "home_mailbox = mail/"
+```
+Restart the postfix service:
+```
+$ sudo service postfix restart
+```
+Install the CLI (non-graphical) mail client `mutt`:
+```
+$ sudo apt install mutt
+```
+Create a config file `".muttrc"` for `mutt` in the `/root/` directory and edit it:
+```
+set mbox_type=Maildir
+set folder="/root/mail"
+set mask="!^\\.[^.]"
+set mbox="/root/mail"
+set record="+.Sent"
+set postponed="+.Drafts"
+set spoolfile="/root/mail"
+```
+Start `mutt` and exit:
+```
+$ mutt
+Enter 'q' to exit
+```
+Test sending a simple mail to root:
+```
+$ echo "Text" | sudo mail -s "Subject" root@debian.lan
+```
+Then login as root and start `mutt`. The mail should now be visible.
+
+The crontab script should now work.
+
+> to copy file from host to VM via SSH: `scp -P 50000 i_will_monitor_cron.sh kseniia@192.168.10.42:~` (~ means home dir)
 ## V.2 Web Part
 
 ## V.3 Deployment Part
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
