@@ -352,6 +352,9 @@ The crontab script should now work.
 
 > to copy file from host to VM via SSH: `scp -P 50000 i_will_monitor_cron.sh kseniia@192.168.10.42:~` (~ means home dir)
 ## V.2 Web Part <a id="WebPart"></a>
+my login page:
+
+![login_page](img/login_page.png)
 
 ## V.3 Deployment Part <a id="DepPart"></a>
 
