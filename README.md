@@ -1,6 +1,14 @@
 # roger-skyline-1
 
-## V.1 VM Part
+## Summary <a id="summary"></a>
+
+- [Summary](#summary)
+- [V.1 VM Part](#VMPart)
+- [V.2 Network and Security Part](#NetworkSecurityPart)
+- [V.2 Web Part](#WebPart)
+- [V.3 Deployment Part](#DepPart)
+
+## V.1 VM Part <a id="VMPart"></a>
 ***hypervisor:*** VirtualBox; ***Linux OS:*** Debian(64-bit); size of the hard disk is 8.00 GB(VDI, fixed size);
 Next you should run the virtual machine and specify the image of the OS - i downloaded `debian-10.1.0-amd64-netinst.iso` from https://www.debian.org/distrib/.
 ![specify_img](img/specify_img.png)
@@ -26,7 +34,7 @@ i created 2 partitions: one `primary` with mout point on the `/ (root)` of OS an
 
 then go for `Finish partitioning and write changes to disk`.
 Finally, i did not install desktop envirinment; GRUB i accepted.
-## V.2 Network and Security Part
+## V.2 Network and Security Part <a id="NetworkSecurityPart"></a>
 ### You must create a non-root user to connect to the machine and work.
 Non-root login was created while setting up the OS. Just log in.
 ### Use sudo, with this user, to be able to perform operation requiring special rights.
@@ -329,9 +337,9 @@ The crontab script should now work.
 - [Setting Up Local Mail Delivery on Ubuntu with Postfix and Mutt](https://www.cmsimike.com/blog/2011/10/30/setting-up-local-mail-delivery-on-ubuntu-with-postfix-and-mutt/)
 
 > to copy file from host to VM via SSH: `scp -P 50000 i_will_monitor_cron.sh kseniia@192.168.10.42:~` (~ means home dir)
-## V.2 Web Part
+## V.2 Web Part <a id="WebPart"></a>
 
-## V.3 Deployment Part
+## V.3 Deployment Part <a id="DepPart"></a>
 
 
 
