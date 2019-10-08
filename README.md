@@ -446,3 +446,5 @@ Execute the deployment script (must be done with sudo):
 $ chmod +x ./deploy.sh
 $ sudo ./deploy.sh
 ```
+
+Test that the deployment went fine by logging in to 192.168.10.42://login.html on the host machine browser.
