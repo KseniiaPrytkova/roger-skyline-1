@@ -7,7 +7,6 @@ PRE_ERR="! "
 
 COLOR_INFO="\033[0;36m"
 COLOR_NOTICE="\033[0;33m"
-COLOR_SPECIAL="\033[1;35m"
 COLOR_ERR="\033[0;31m"
 COLOR_RESET="\033[0m"
 
@@ -26,10 +25,6 @@ pr () {
 
 pr_notice () {
 	echo -e "${COLOR_NOTICE}${PRE_INFO}${1}${COLOR_RESET}"
-}
-
-pr_special () {
-	echo -e "${COLOR_SPECIAL}${PRE_INFO}${1}${COLOR_RESET}"
 }
 
 # Get all configurable values.
@@ -200,7 +195,7 @@ DIR_CRONJOBS="${TMP}"
 for e in "${cronjobs[@]}"; do
 	pr "Adding crontab rules for ${e}"
 	TMP=/tmp/roger_skyline_crontab.tmp
-	sudo -u $SUDO_USER crontab -l > $TMP || err_exit "Failed to get crontab"
+	sudo -u $SUDO_USER crontab -l > $TMP
 
 	if [ "${e}" == "i_will_update.sh" ]; then
 		echo "@reboot ${DIR_CRONJOBS}/${e} &" >> $TMP
@@ -253,43 +248,6 @@ echo
 
 pr "Deploy the login page"
 cp ${SRC_DIR}/login.html /var/www/html/ || err_exit "Failed to copy login.html"
-echo
-
-pr_special "And finally..."
-sleep 2
-pr_special "Deploy"
-sleep 1
-pr_special "the..."
-sleep 3
-cat ${SRC_DIR}/img_hamster_name
-sleep 2
-pr_special "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-pr_special " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-pr_special "AAAAAAAAAAAAAAAAAAAAAAA"
-sleep 1
-pr_special "     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-pr_special "  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-pr_special "   AAAAAAAAAAAAAAAAAAAAAAAA"
-pr_special "           A"
-sleep 1
-pr_special "        A"
-pr_special "         A"
-sleep 1
-pr_special "     A"
-pr_special "   A"
-sleep 1
-pr_special " AAAAAAAAAAAAAAAAA"
-sleep 1
 mkdir /var/www/html/img/ >/dev/null
-cp ${SRC_DIR}/img/you.png /var/www/html/img/
-
-cat ${SRC_DIR}/img_hamster
-sleep 1
-echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-sleep 1
-echo       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-echo            aaaaaaaaaaaaaaaaa
-echo      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-echo                                                aaaaaaaaaa
-sleep 1
-cat ${SRC_DIR}/img_hamster2
+cp ${SRC_DIR}/img/you.png /var/www/html/img/ || err_exit "Failed to copy you.png"
+echo
