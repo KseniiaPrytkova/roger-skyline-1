@@ -448,3 +448,10 @@ $ sudo ./deploy.sh
 ```
 
 Test that the deployment went fine by logging in to 192.168.10.42://login.html on the host machine browser.
+
+To get a checksum of the VM disk, go to /home/admin/VirtualBox VMs/, select the VM and then run:
+```
+$ shasum < [vdi file]
+```
+
+http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
