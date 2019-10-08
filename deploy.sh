@@ -248,6 +248,16 @@ echo
 
 pr "Deploy the login page"
 cp ${SRC_DIR}/login.html /var/www/html/ || err_exit "Failed to copy login.html"
+echo
+
+pr "And finally..."
+sleep 2
+pr "Deploy the"
+sleep 2
+cat ${SRC_DIR}/img_hamster_name
 mkdir /var/www/html/img/ >/dev/null
 cp ${SRC_DIR}/img/you.png /var/www/html/img/ || err_exit "Failed to copy you.png"
 echo
+
+sleep 1
+cat ${SRC_DIR}/img_hamster
