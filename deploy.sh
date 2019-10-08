@@ -178,7 +178,7 @@ for e in "${services_to_disable[@]}"; do
 	echo
 done
 
-# Copy cron jobs to the /home/[user who called sudo]/cronjobs/.
+# Deploy cron jobs to the /home/[user who called sudo]/cronjobs/.
 TMP="/home/${SUDO_USER}/cronjobs"
 declare -a cronjobs=(
 "i_will_update.sh"
@@ -207,9 +207,31 @@ for e in "${cronjobs[@]}"; do
 	fi
 
 	sudo -u $SUDO_USER crontab $TMP || err_exit "Failed to add ${e} cron job"
+	echo
 done
 rm $TMP
+
+pr "Set root:root in etc/aliases"
+sed -i "/^[[:blank:]]*root:[[:blank:]]*[[:graph:]]*[[:blank:]]*$/c\root:root" /etc/aliases
 echo
+
+pr "Reload aliases"
+newaliases || err_exit "Failed reloading aliases"
+echo
+
+MAIL_HOME_MAILBOX=mail/
+
+pr "Setting the home mailbox and restarting postfix"
+postconf -e "home_mailbox = ${MAIL_HOME_MAILBOX}"
+postfix reload || err_exit "Failed to restart postfix"
+echo
+
+pr "Deploying mutt src file" 
+cp ${SRC_DIR}/.muttrc /root || err_exit "Failed to copy .muttrc"
+echo
+
+
+
 
 
 
