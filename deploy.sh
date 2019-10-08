@@ -66,15 +66,15 @@ done
 
 pr "Setting up static IP ${IP_ADDRESS} with netmask ${NETMASK}"
 cd /etc/network/
-chmod +w interfaces
+#chmod +w interfaces
 #echo "# The primary network interface" >> interfaces
 #echo "auto enp0s3" >> interfaces
-cd /etc/network/interfaces.d/
-touch enp0s3
+#cd /etc/network/interfaces.d/
+#touch enp0s3
 #echo "iface enp0s3 inet static" >> enp0s3
 #echo "    address ${IP_ADDRESS}" >> enp0s3
 #echo "    netmask ${NETMASK}" >> enp0s3
-service networking restart || err "Failed to restart the networking service"
+#service networking restart || err "Failed to restart the networking service"
 echo
 
 pr "Checking ifconfig"
@@ -89,5 +89,24 @@ SSH_PORT=50000
 
 pr "Setting SSH port number to ${SSH_PORT}"
 cd /etc/ssh/
-sed -i '/^[[:blank:]]asdasd*#[[:blank:]]*Port[[:blank:]]*[0-9]*[[:blank:]]*$/c\Port ${SSH_PORT}/\!\{q1\}; \{s/f/b\}' sshd_config || err "Failed to change the SSH port - change the port (\"Port [n]\") manually"
+TMPFILE=/tmp/sshd_config_roger_skyline.tmp
+cat sshd_config > $TMPFILE
+sed -i "/^[[:blank:]]*#[[:blank:]]*Port[[:blank:]]*[0-9]*[[:blank:]]*$/c\Port ${SSH_PORT}" sshd_config
+diff sshd_config $TMPFILE >/dev/null && err "Failed to change the SSH port - change the port (\"Port [n]\") manually in /etc/ssh/sshd_config"
+rm $TMPFILE
 echo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
