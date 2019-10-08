@@ -441,34 +441,7 @@ Clone the repository to the VM:
 ```
 git clone https://github.com/KseniiaPrytkova/roger-skyline-1
 ```
-Execute the deployment script:
+Execute the deployment script (must be done with sudo):
 ```
-$ ./deploy.sh
+$ sudo ./deploy.sh
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

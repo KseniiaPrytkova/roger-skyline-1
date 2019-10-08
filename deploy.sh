@@ -7,7 +7,7 @@ PRE_ERR="! "
 
 COLOR_INFO="\033[0;36m"
 COLOR_NOTICE="\033[0;33m"
-COLOR_SPECIAL="\033[0;35m"
+COLOR_SPECIAL="\033[1;35m"
 COLOR_ERR="\033[0;31m"
 COLOR_RESET="\033[0m"
 
@@ -32,8 +32,12 @@ pr_special () {
 	echo -e "${COLOR_SPECIAL}${PRE_INFO}${1}${COLOR_RESET}"
 }
 
+# Get all configurable values.
+source deploy.conf
+
 # Save the full path to this script.
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
+
 SRC_DIR="${SCRIPT_DIR}/src/"
 # Check that the src/ directory exists.
 [ ! -d "${SRC_DIR}" ] && err_exit "Source directory \"${SRC_DIR}\" does not exist"
@@ -59,9 +63,6 @@ declare -a pkgs=(
 "postfix" # Opens up an interactive screen.
 "mutt" # Terminal mail client for root.
 )
-
-# Get all configurable values.
-source deploy.conf
 
 # Set these values to be pre-answered for these packages,
 # in order to skip the interactive screen.
