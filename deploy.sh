@@ -178,22 +178,42 @@ for e in "${services_to_disable[@]}"; do
 	echo
 done
 
-# Copy cron job to the /home/[user who called sudo]/cronjobs/.
+# Copy cron jobs to the /home/[user who called sudo]/cronjobs/.
 TMP="/home/${SUDO_USER}/cronjobs"
-CRONJOB_PATH="${TMP}/i_will_update.sh"
-pr "Deploying i_will_update.sh to ${TMP}/"
-sudo -u $SUDO_USER mkdir "/home/${SUDO_USER}/cronjobs/" >/dev/null
-sudo -u $SUDO_USER cp "${SRC_DIR}/i_will_update.sh" "${TMP}" || err_exit "Failed to copy \"i_will_update.sh\""
+declare -a cronjobs=(
+"i_will_update.sh"
+"i_will_monitor_cron.sh"
+)
+
+pr "Deploying cron jobs to ${TMP}/"
+sudo -u $SUDO_USER mkdir $TMP >/dev/null
+for e in "${cronjobs[@]}"; do
+	sudo -u $SUDO_USER cp "${SRC_DIR}/${e}" "${TMP}" || err_exit "Failed to copy \"${e}\""
+	sudo chmod u+x "${TMP}/${e}"
+done
 echo
 
-pr "Adding crontab rules for i_will_update.sh"
-TMP=/tmp/roger_skyline_crontab.tmp
-sudo -u $SUDO_USER crontab -l > $TMP
-echo "@reboot ${CRONJOB_PATH} &" >> $TMP
-echo "0 4 * * MON ${CRONJOB_PATH} &" >> $TMP
-sudo -u $SUDO_USER crontab $TMP || err_exit "Failed to add i_will_update.sh cron job"
+DIR_CRONJOBS="${TMP}"
+for e in "${cronjobs[@]}"; do
+	pr "Adding crontab rules for ${e}"
+	TMP=/tmp/roger_skyline_crontab.tmp
+	sudo -u $SUDO_USER crontab -l > $TMP || err_exit "Failed to get crontab"
+
+	if [ "${e}" == "i_will_update.sh" ]; then
+		echo "@reboot ${DIR_CRONJOBS}/${e} &" >> $TMP
+		echo "0 4 * * MON ${DIR_CRONJOBS}/${e} &" >> $TMP
+	elif [ "${e}" == "i_will_monitor_cron.sh" ]; then
+		echo "* * * * * ${DIR_CRONJOBS}/${e} &" >> $TMP
+	fi
+
+	sudo -u $SUDO_USER crontab $TMP || err_exit "Failed to add ${e} cron job"
+done
 rm $TMP
 echo
+
+
+
+
 
 
 
