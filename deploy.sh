@@ -120,8 +120,6 @@ echo
 pr "Printing the status of SSH"
 systemctl status ssh || err "Failed to check the status of SSH"
 echo
-pr_notice "Don't forget to setup SSH public key authentication on the host side!"
-echo
 
 pr "Enabling ufw"
 ufw enable || err_exit "Failed to enable ufw"
@@ -248,6 +246,11 @@ echo
 
 pr "Deploy the login page"
 cp ${SRC_DIR}/login.html /var/www/html/ || err_exit "Failed to copy login.html"
+echo
+
+pr_notice "Don't forget to setup SSH public key authentication on the host side!"
+echo
+pr_notice "Don't forget to copy the nameserver from host machine /etc/resolv.conf to this machine if needed!"
 echo
 
 pr "And finally..."
