@@ -2,11 +2,12 @@
 
 # Run with sudo.
 
-PRE_INFO="#### "
-PRE_ERR="!!!! "
+PRE_INFO="# "
+PRE_ERR="! "
 
 COLOR_INFO="\033[0;36m"
 COLOR_NOTICE="\033[0;33m"
+COLOR_SPECIAL="\033[0;35m"
 COLOR_ERR="\033[0;31m"
 COLOR_RESET="\033[0m"
 
@@ -27,6 +28,10 @@ pr_notice () {
 	echo -e "${COLOR_NOTICE}${PRE_INFO}${1}${COLOR_RESET}"
 }
 
+pr_special () {
+	echo -e "${COLOR_SPECIAL}${PRE_INFO}${1}${COLOR_RESET}"
+}
+
 # Save the full path to this script.
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 SRC_DIR="${SCRIPT_DIR}/src/"
@@ -34,30 +39,29 @@ SRC_DIR="${SCRIPT_DIR}/src/"
 [ ! -d "${SRC_DIR}" ] && err_exit "Source directory \"${SRC_DIR}\" does not exist"
 
 pr "Updating system"
-#apt-get update -y || err_exit
+apt-get update -y || err_exit
 echo
 pr "Upgrading system"
-#apt-get upgrade -y || err_exit
+apt-get upgrade -y || err_exit
 echo
 
 # All the packages to install.
 declare -a pkgs=(
-#"vim"
-#"openssh-server" #Should be installed already, but just in case.
-#"net-tools"
-#"ufw"
-#"iptables"
-#"fail2ban"
-#"apache2"
-#"portsentry" # Opens up an interactive screen (->ENTER).
-#"bsd-mailx" # Not needed, but can be useful for testing (sending mails manually).
-#"postfix" # Opens up an interactive screen.
-#"mutt" # Terminal mail client for root.
+"vim"
+"openssh-server" #Should be installed already, but just in case.
+"net-tools"
+"ufw"
+"iptables"
+"fail2ban"
+"apache2"
+"portsentry" # Opens up an interactive screen (->ENTER).
+"bsd-mailx" # Not needed, but can be useful for testing (sending mails manually).
+"postfix" # Opens up an interactive screen.
+"mutt" # Terminal mail client for root.
 )
 
-MAIL_NAME="debian.lan"
-IP_ADDRESS="192.168.10.42"
-NETMASK="255.255.255.252"
+# Get all configurable values.
+source deploy.conf
 
 # Set these values to be pre-answered for these packages,
 # in order to skip the interactive screen.
@@ -77,15 +81,15 @@ done
 
 pr "Setting up static IP ${IP_ADDRESS} with netmask ${NETMASK}"
 cd /etc/network/
-#chmod +w interfaces
-#echo "# The primary network interface" >> interfaces
-#echo "auto enp0s3" >> interfaces
-#cd /etc/network/interfaces.d/
-#touch enp0s3
-#echo "iface enp0s3 inet static" >> enp0s3
-#echo "    address ${IP_ADDRESS}" >> enp0s3
-#echo "    netmask ${NETMASK}" >> enp0s3
-#service networking restart || err "Failed to restart the networking service"
+chmod +w interfaces
+echo "# The primary network interface" >> interfaces
+echo "auto enp0s3" >> interfaces
+cd /etc/network/interfaces.d/
+touch enp0s3
+echo "iface enp0s3 inet static" >> enp0s3
+echo "    address ${IP_ADDRESS}" >> enp0s3
+echo "    netmask ${NETMASK}" >> enp0s3
+service networking restart || err "Failed to restart the networking service"
 echo
 
 pr "Printing ifconfig"
@@ -95,8 +99,6 @@ echo
 pr "Printing the SSHD service process"
 ps -ef | grep sshd
 echo
-
-SSH_PORT=50000
 
 pr "Setting SSH port number to ${SSH_PORT}"
 cd /etc/ssh/
@@ -219,8 +221,6 @@ pr "Reload aliases"
 newaliases || err_exit "Failed reloading aliases"
 echo
 
-MAIL_HOME_MAILBOX=mail/
-
 pr "Setting the home mailbox and restarting postfix"
 postconf -e "home_mailbox = ${MAIL_HOME_MAILBOX}"
 postfix reload || err_exit "Failed to restart postfix"
@@ -230,16 +230,65 @@ pr "Deploying mutt src file"
 cp ${SRC_DIR}/.muttrc /root || err_exit "Failed to copy .muttrc"
 echo
 
+pr "Generate SSL self-signed key and certificate"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+	-subj "/C=UA/ST=/L=/O=/OU=/CN=${IP_ADDRESS}" \
+	-keyout /etc/ssl/private/apache-selfsigned.key \
+	-out /etc/ssl/certs/apache-selfsigned.crt \
+	|| err_exit "Failed to generate SSL self-signed key and certificate"
+echo
 
+pr "Deploying SSL params src file"
+cp ${SRC_DIR}/ssl-params.conf /etc/apache2/conf-available/ || err_exit "Failed to copy ssl-params.conf"
+echo
 
+pr "Deploying default SSL conf src file"
+cp ${SRC_DIR}/default-ssl.conf /etc/apache2/sites-available/ || err_exit "Failed to copy default-ssl.conf"
+echo
 
+pr "Deploying 000-default.conf src file"
+cp ${SRC_DIR}/000-default.conf /etc/apache2/sites-available/ || err_exit "Failed to copy 000-default.conf"
+echo
 
+pr "Deploy the login page"
+cp ${SRC_DIR}/login.html /var/www/html/ || err_exit "Failed to copy login.html"
+echo
 
+pr_special "And finally..."
+sleep 2
+pr_special "Deploy"
+sleep 1
+pr_special "the..."
+sleep 3
+cat ${SRC_DIR}/img_hamster_name
+sleep 2
+pr_special "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+pr_special " AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+pr_special "AAAAAAAAAAAAAAAAAAAAAAA"
+sleep 1
+pr_special "     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+pr_special "  AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+pr_special "   AAAAAAAAAAAAAAAAAAAAAAAA"
+pr_special "           A"
+sleep 1
+pr_special "        A"
+pr_special "         A"
+sleep 1
+pr_special "     A"
+pr_special "   A"
+sleep 1
+pr_special " AAAAAAAAAAAAAAAAA"
+sleep 1
+mkdir /var/www/html/img/ >/dev/null
+cp ${SRC_DIR}/img/you.png /var/www/html/img/
 
-
-
-
-
-
-
-
+cat ${SRC_DIR}/img_hamster
+sleep 1
+echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+sleep 1
+echo       aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+echo            aaaaaaaaaaaaaaaaa
+echo      aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+echo                                                aaaaaaaaaa
+sleep 1
+cat ${SRC_DIR}/img_hamster2
