@@ -100,19 +100,19 @@ SSH_PORT=50000
 
 pr "Setting SSH port number to ${SSH_PORT}"
 cd /etc/ssh/
-TMPFILE=/tmp/sshd_config_roger_skyline.tmp
-cat sshd_config > $TMPFILE
+TMP=/tmp/roger_skyline_sshd_config.tmp
+cat sshd_config > $TMP
 sed -i "/^[[:blank:]]*#[[:blank:]]*Port[[:blank:]]*[0-9]*[[:blank:]]*$/c\Port ${SSH_PORT}" sshd_config
-diff sshd_config $TMPFILE >/dev/null && err "Failed to change the SSH port - change the port (\"Port ${SSH_PORT}\") manually in /etc/ssh/sshd_config"
-rm $TMPFILE
+diff sshd_config $TMP >/dev/null && err "Failed to change the SSH port - change the port (\"Port ${SSH_PORT}\") manually in /etc/ssh/sshd_config"
+rm $TMP
 echo
 
 pr "Disable SSH login for the root user"
 cd /etc/ssh/
-cat sshd_config > $TMPFILE
+cat sshd_config > $TMP
 sed -i "/^[[:blank:]]*#[[:blank:]]*PermitRootLogin[[:blank:]]*[[:graph:]]*[[:blank:]]*$/c\PermitRootLogin no" sshd_config
-diff sshd_config $TMPFILE >/dev/null && err "Failed to disable SSH root login - change it (\"PermitRootLogin no\") manually in /etc/ssh/sshd_config"
-rm $TMPFILE
+diff sshd_config $TMP >/dev/null && err "Failed to disable SSH root login - change it (\"PermitRootLogin no\") manually in /etc/ssh/sshd_config"
+rm $TMP
 echo
 
 pr "Restarting the SSHD service"
@@ -134,7 +134,6 @@ declare -a ufw_allow=(
 "80/tcp (HTTP)"
 "443 (HTTPS)"
 )
-
 for e in "${ufw_allow[@]}"; do
 	pr "Make ufw allow ${e}"
 	ufw allow `echo ${e} | awk '{print $1}'` || err_exit "Failed to make ufw allow ${e}"
@@ -167,6 +166,35 @@ echo
 pr "Starting portsentry (it will now begin to block the port scans)"
 /etc/init.d/portsentry start || err_exit "Failed to start portsentry"
 echo
+
+declare -a services_to_disable=(
+"bluetooth"
+"console-setup"
+"keyboard-setup"
+)
+for e in "${services_to_disable[@]}"; do
+	pr "Disable service ${e}"
+	systemctl disable ${e}.service || err "Failed to disable the ${e} service"
+	echo
+done
+
+# Copy cron job to the /home/[user who called sudo]/cronjobs/.
+TMP="/home/${SUDO_USER}/cronjobs"
+CRONJOB_PATH="${TMP}/i_will_update.sh"
+pr "Deploying i_will_update.sh to ${TMP}/"
+sudo -u $SUDO_USER mkdir "/home/${SUDO_USER}/cronjobs/" >/dev/null
+sudo -u $SUDO_USER cp "${SRC_DIR}/i_will_update.sh" "${TMP}" || err_exit "Failed to copy \"i_will_update.sh\""
+echo
+
+pr "Adding crontab rules for i_will_update.sh"
+TMP=/tmp/roger_skyline_crontab.tmp
+sudo -u $SUDO_USER crontab -l > $TMP
+echo "@reboot ${CRONJOB_PATH} &" >> $TMP
+echo "0 4 * * MON ${CRONJOB_PATH} &" >> $TMP
+sudo -u $SUDO_USER crontab $TMP || err_exit "Failed to add i_will_update.sh cron job"
+rm $TMP
+echo
+
 
 
 
