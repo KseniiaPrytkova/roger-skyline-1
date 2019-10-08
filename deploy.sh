@@ -5,7 +5,8 @@
 PRE_INFO="#### "
 PRE_ERR="!!!! "
 
-COLOR_INFO="\033[0;35m"
+COLOR_INFO="\033[0;36m"
+COLOR_NOTICE="\033[0;33m"
 COLOR_ERR="\033[0;31m"
 COLOR_RESET="\033[0m"
 
@@ -20,6 +21,10 @@ err_exit () {
 
 pr () {
 	echo -e "${COLOR_INFO}${PRE_INFO}${1}${COLOR_RESET}"
+}
+
+pr_notice () {
+	echo -e "${COLOR_NOTICE}${PRE_INFO}${1}${COLOR_RESET}"
 }
 
 pr "Updating system"
@@ -77,11 +82,11 @@ cd /etc/network/
 #service networking restart || err "Failed to restart the networking service"
 echo
 
-pr "Checking ifconfig"
+pr "Printing ifconfig"
 ifconfig || err "Failed to start ifconfig"
 echo
 
-pr "Checking the status of the SSH server"
+pr "Printing the SSHD service process"
 ps -ef | grep sshd
 echo
 
@@ -92,13 +97,49 @@ cd /etc/ssh/
 TMPFILE=/tmp/sshd_config_roger_skyline.tmp
 cat sshd_config > $TMPFILE
 sed -i "/^[[:blank:]]*#[[:blank:]]*Port[[:blank:]]*[0-9]*[[:blank:]]*$/c\Port ${SSH_PORT}" sshd_config
-diff sshd_config $TMPFILE >/dev/null && err "Failed to change the SSH port - change the port (\"Port [n]\") manually in /etc/ssh/sshd_config"
+diff sshd_config $TMPFILE >/dev/null && err "Failed to change the SSH port - change the port (\"Port ${SSH_PORT}\") manually in /etc/ssh/sshd_config"
 rm $TMPFILE
 echo
 
+pr "Disable SSH login for the root user"
+cd /etc/ssh/
+cat sshd_config > $TMPFILE
+sed -i "/^[[:blank:]]*#[[:blank:]]*PermitRootLogin[[:blank:]]*[[:graph:]]*[[:blank:]]*$/c\PermitRootLogin no" sshd_config
+diff sshd_config $TMPFILE >/dev/null && err "Failed to disable SSH root login - change it (\"PermitRootLogin no\") manually in /etc/ssh/sshd_config"
+rm $TMPFILE
+echo
 
+pr "Restarting the SSHD service"
+sudo service sshd restart || err "Restarting the SSHD service failed"
+echo
 
+pr "Printing the status of SSH"
+systemctl status ssh || err "Failed to check the status of SSH"
+echo
+pr_notice "Don't forget to setup SSH public key authentication on the host side!"
+echo
 
+pr "Enabling ufw"
+ufw enable || err "Failed to enable ufw"
+echo
+
+declare -a ufw_allow=(
+"${SSH_PORT}/tcp (SSH)"
+"80/tcp (HTTP)"
+"443 (HTTPS)"
+)
+
+for e in "${ufw_allow[@]}"; do
+	pr "Let ufw allow ${e}"
+	ufw allow `echo ${e} | awk '{print $1}'` || err "Failed to let ufw allow ${e}"
+	echo
+done
+
+pr "Printing the status of ufw"
+ufw status
+
+cd /etc/fail2ban/
+cp jail.conf jail.local
 
 
 
