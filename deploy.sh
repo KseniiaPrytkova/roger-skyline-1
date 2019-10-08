@@ -27,6 +27,12 @@ pr_notice () {
 	echo -e "${COLOR_NOTICE}${PRE_INFO}${1}${COLOR_RESET}"
 }
 
+# Save the full path to this script.
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
+SRC_DIR="${SCRIPT_DIR}/src/"
+# Check that the src/ directory exists.
+[ ! -d "${SRC_DIR}" ] && err_exit "Source directory \"${SRC_DIR}\" does not exist"
+
 pr "Updating system"
 #apt-get update -y || err_exit
 echo
@@ -120,7 +126,7 @@ pr_notice "Don't forget to setup SSH public key authentication on the host side!
 echo
 
 pr "Enabling ufw"
-ufw enable || err "Failed to enable ufw"
+ufw enable || err_exit "Failed to enable ufw"
 echo
 
 declare -a ufw_allow=(
@@ -130,21 +136,37 @@ declare -a ufw_allow=(
 )
 
 for e in "${ufw_allow[@]}"; do
-	pr "Let ufw allow ${e}"
-	ufw allow `echo ${e} | awk '{print $1}'` || err "Failed to let ufw allow ${e}"
+	pr "Make ufw allow ${e}"
+	ufw allow `echo ${e} | awk '{print $1}'` || err_exit "Failed to make ufw allow ${e}"
 	echo
 done
 
 pr "Printing the status of ufw"
 ufw status
+echo
 
-cd /etc/fail2ban/
-cp jail.conf jail.local
+pr "Deploying fail2ban src files"
+cp ${SRC_DIR}/jail.local /etc/fail2ban || err_exit "Failed to copy \"jail.local\""
+cp ${SRC_DIR}/http-get-dos.conf /etc/fail2ban/filter.d/ || err_exit "Failed to copy \"http-get-dos.conf\""
+echo
 
+pr "Restarting ufw and starting fail2ban"
+ufw reload || err "Failed to restart ufw"
+service fail2ban start || err_exit "Failed to start fail2ban"
+echo
 
+pr "Printing the status of fail2ban"
+fail2ban-client status
+echo
 
+pr "Deploying portsentry src files"
+cp ${SRC_DIR}/portsentry /etc/default/ || err_exit "Failed to copy \"portsentry\""
+cp ${SRC_DIR}/portsentry.conf /etc/portsentry/ || err_exit "Failed to copy \"portsentry.conf\""
+echo
 
-
+pr "Starting portsentry (it will now begin to block the port scans)"
+/etc/init.d/portsentry start || err_exit "Failed to start portsentry"
+echo
 
 
 
