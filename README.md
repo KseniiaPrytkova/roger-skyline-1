@@ -452,5 +452,4 @@ To get a checksum of the VM disk, go to /home/admin/VirtualBox VMs/, select the 
 ```
 $ shasum < [vdi file]
 ```
-
-[ASCII Art](http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
+- [ASCII Art](http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20)
